@@ -1,0 +1,36 @@
+# Ambiente virtual
+venv/
+.env
+*.pyc
+__pycache__/
+instance/
+*.pyo
+*.pyd
+*.pdb
+
+# Banco de dados
+*.sqlite3
+*.db
+
+# Configurações do editor
+.vscode/
+.idea/
+*.swp
+
+# Logs e caches
+logs/
+*.log
+.cache/
+.src/__pycache__/
+__pycache__/
+
+# Arquivos de migração do SQLAlchemy
+./src/migrations/
+./src/alembic/
+migrations/
+
+# Dependências do Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# A
