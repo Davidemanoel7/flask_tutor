@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.item import db, Item
+import sys
 
 item_bp = Blueprint('item_bp', __name__)
 
@@ -31,8 +32,9 @@ def criar_item():
     # Criando um item a partir do objeto enviado
     item_novo = Item(
         nome = data['nome'],
-        descricao = data['descricao'],
-        comprado = data['comprado']
+        descricao = data.get('descricao', ''),
+        comprado = data.get('comprado', False),
+        quantidade = data.get('quantidade', 0)
     )
 
     db.session.add( item_novo ) # Adiciona o item ao banco de dados
@@ -52,9 +54,11 @@ def atualizar_item(id):
         return jsonify({"erro": "Item não encontrado"}), 404
     
     data = request.json
+
     item.nome = data.get("nome", item.nome)
     item.descricao = data.get("descricao", item.descricao)
-    item.comprado = data.get("comprado", item.comprado)
+    item.comprado = data.get("comprado", item.comprado )
+    item.quantidade = data.get("quantidade", item.quantidade)
 
     db.session.commit()
 
@@ -76,7 +80,8 @@ def atualizar_item_parcial(id):
 
     item.nome = data.get("nome", item.nome)
     item.descricao = data.get("descricao", item.descricao)
-    item.comprado = data.get("comprado", item.comprado)
+    item.comprado = data.get("comprado", item.comprado )
+    item.quantidade = data.get("quantidade", item.quantidade)
 
     db.session.commit()
 
@@ -99,3 +104,37 @@ def deletar_item(id):
     return jsonify({
         "mensagem": f"Item com ID {item.id} deletado!"
     })
+
+@item_bp.route('/itens', methods=['GET'])
+def listar_comprados():
+    args_str = request.args.get('comprado', default='', type=str )
+
+    args_comprado = parse_bool( args_str )
+
+    if args_comprado is None:
+        return jsonify({
+            'erro': 'Parâmetro "comprado" inválido. Use true ou false'
+            }), 400
+    
+    itens = Item.query.filter_by( comprado= args_comprado ).all()
+    itens_json = [ item.json() for item in itens ]
+
+    return jsonify({
+        'count': len( itens_json ),
+        'itens': itens_json
+    })
+
+
+def parse_bool(value):
+    """Converte strings comuns para booleano"""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        value = value.strip().lower()
+        if value in {"true", "1", "yes", "on"}:
+            return True
+        elif value in {"false", "0", "no", "off"}:
+            return False
+        else:
+            return False
+    return None
