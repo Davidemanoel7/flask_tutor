@@ -7,11 +7,13 @@ class Item(db.Model):
     nome = db.Column( db.String(100), nullable = False )
     descricao = db.Column( db.String(200), nullable = True )
     comprado = db.Column( db.Boolean, default=False )
+    quantidade = db.Column(db.Integer, nullable=False, default=0 )
 
     def json(self):
         return {
             'id': self.id,
             'nome': self.nome,
             'descricao': self.descricao,
-            'comprado': self.comprado
+            'comprado': self.comprado,
+            'quantidade': self.quantidade
         }
